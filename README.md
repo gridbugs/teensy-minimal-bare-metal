@@ -1,10 +1,13 @@
-# Teensy 4.0 Bare-Metal Example
+# Minimal Teensy 4.1 bare metal starting point
 
-This is a bare-metal example for the [Teensy](https://www.pjrc.com/teensy/) 4.0 board. It's intended to be used with the free GCC ARM toolchain.
+Build and flash with `make flash`.
 
-The generated HEX file is compatible with the [Teensy Loader](https://www.pjrc.com/teensy/loader.html).
-
+Prints at 9600 baud via the lpuart1 device whose TX line is attached to pin 24
+of the Teensy 4.1 (called TX6 in the Teensy literature).
 
 # Credits
 
-Linker files and startup code are based on the [Teensy Core Libraries for Arduino](https://github.com/PaulStoffregen/cores) by Paul Stoffregen.
+This is based on [Teensy 4.0 Bare-Metal
+Example](https://github.com/blazer82/baremetal-blinky.teensy.git) which in turn
+borrows some code from the [Teensy Core Libraries for
+Arduino](https://github.com/PaulStoffregen/cores) by Paul Stoffregen.
