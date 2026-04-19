@@ -1,8 +1,9 @@
-CC = arm-none-eabi-gcc
-LD = arm-none-eabi-ld
-OBJCOPY = arm-none-eabi-objcopy
-OBJDUMP = arm-none-eabi-objdump
-SIZE = arm-none-eabi-size
+TOOL_PREFIX=arm-none-eabi
+CC = $(TOOL_PREFIX)-gcc
+LD = $(TOOL_PREFIX)-ld
+OBJCOPY = $(TOOL_PREFIX)-objcopy
+OBJDUMP = $(TOOL_PREFIX)-objdump
+SIZE = $(TOOL_PREFIX)-size
 LOADER = teensy_loader_cli
 
 OUTFILE = firmware
@@ -14,11 +15,13 @@ SRCS := $(shell find $(SRC_DIRS) -name *.c -or -name *.s)
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
+LIBS = -lgcc
+
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-CFLAGS = -O3 -Wall -Werror -mcpu=cortex-m7 -mthumb $(INC_FLAGS)
-LDFLAGS = -Wl,--gc-sections,--print-gc-sections,--print-memory-usage -nostdlib -nostartfiles -Tteensy/imxrt1062.ld
+CFLAGS = -O3 -Wall -mcpu=cortex-m7 -mthumb -mfloat-abi=hard $(INC_FLAGS)
+LDFLAGS = -nostdlib -nostartfiles -Tteensy/imxrt1062.ld
 
 $(BUILD_DIR)/$(OUTFILE).hex: $(BUILD_DIR)/$(OUTFILE).elf
 	@$(OBJCOPY) -O ihex -R .eeprom build/$(OUTFILE).elf build/$(OUTFILE).hex
@@ -27,7 +30,7 @@ $(BUILD_DIR)/$(OUTFILE).hex: $(BUILD_DIR)/$(OUTFILE).elf
 	@$(SIZE) build/$(OUTFILE).elf
 
 $(BUILD_DIR)/$(OUTFILE).elf: $(OBJS)
-	@$(CC) $(CFLAGS) -Xlinker -Map=build/$(OUTFILE).map $(LDFLAGS) -o $@ $^
+	@$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(BUILD_DIR)/%.s.o: %.s
 	@$(MKDIR_P) $(dir $@)
@@ -44,5 +47,9 @@ flash: $(BUILD_DIR)/$(OUTFILE).hex
 .PHONY: clean
 clean:
 	@$(RM) -r $(BUILD_DIR)
+
+.PHONY: tags
+tags: generate_tags.sh $(wildcard $(SRC_DIR)/*.[ch])
+	./$<
 
 MKDIR_P ?= mkdir -p
