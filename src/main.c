@@ -3,12 +3,6 @@
 #include "imxrt1062.h"
 #include "util.h"
 
-void fpu_enable(void) {
-    SCB_CPACR |= (0xF << 20);  // Set CP10 and CP11 to full access
-    __asm__ volatile ("dsb");
-    __asm__ volatile ("isb");
-}
-
 void lpuart1_putchar(char data) {
   while (!(LPUART1_STAT & LPUART_STAT_TDRE));
   LPUART1_DATA = data;
@@ -24,7 +18,6 @@ void _putchar(char data) {
 }
 
 int main(void) {
-    fpu_enable();
 
     // Derive UART clock from osc_clk (24 MHz)
     CCM_CSCDR1 |= CCM_CSCDR1_UART_CLK_SEL;

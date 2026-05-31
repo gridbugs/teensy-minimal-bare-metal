@@ -31,7 +31,7 @@ void startup()
     memory_clear(&_sbss, &_ebss);
 
     // enable FPU
-    // SCB_CPACR = 0x00F00000;
+    SCB_CPACR = 0x00F00000;
 
     // Call the `main()` function defined in `main.c`.
     main();
