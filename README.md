@@ -29,6 +29,13 @@ To enable a LPUART device:
      `IOMUXC_PAD_PUS(3)|IOMUXC_PAD_SPEED(0)|IOMUXC_PAD_DSE(2)`.
   1. Configure the LPUART device itself via its control registers.
 
+## DMA
+
+To set up DMA transfers for a device:
+  1. Associate the device's DMA source with a channel in `DMAMUX` and enable
+     the channel. If the device will be triggering the DMA transfers itself
+     then don't set the `DMAMUX_CHCFG_TRIG` bit.
+
 # Credits
 
 This is based on [Teensy 4.0 Bare-Metal

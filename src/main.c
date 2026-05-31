@@ -14,8 +14,10 @@ void lpuart2_putchar(char data) {
 }
 
 void _putchar(char data) {
-  lpuart2_putchar(data);
+  lpuart1_putchar(data);
 }
+
+const char* dma_test_string = "Hello DMA!\n\r";
 
 int main(void) {
 
@@ -67,8 +69,36 @@ int main(void) {
     // Enable transmitter and receiver
     LPUART2_CTRL |= (LPUART_CTRL_RE | LPUART_CTRL_TE);
 
-
     printf("Hello, World! %f\n\r", M_PI);
+
+    // Enable the clock gate for the DMA hardware
+    CCM_CCGR5 |= CCM_CCGR5_DMA(3);
+
+    // Disable DMA channel 0 in the eDMA
+    DMA_CERQ = 0;
+
+    // Disable DMA channel 0 in the DMAMUX
+    DMAMUX_CHCFG0 = 0;
+
+    // Enable DMA channel 0 in the eDMA
+    DMA_SERQ = 0;
+
+    // Enable DMA channel 0 in the DMAMUX and associate it with LPUART1_TX
+    DMAMUX_CHCFG0 = DMAMUX_CHCFG_ENBL | DMAMUX_SOURCE_LPUART1_TX;
+
+    // Allow LPUART1 to trigger DMA transfers
+    LPUART1_BAUD |= LPUART_BAUD_TDMAE;
+
+    // Example DMA transfer to LPUART1
+    DMA_TCD0_SADDR = dma_test_string;
+    DMA_TCD0_DADDR = &LPUART1_DATA;
+    DMA_TCD0_NBYTES_MLNO = 1;
+    DMA_TCD0_CITER_ELINKNO = 14;
+    DMA_TCD0_BITER_ELINKNO = 14;
+    DMA_TCD0_SOFF = 1;
+    DMA_TCD0_DOFF = 0;
+    DMA_TCD0_ATTR = DMA_TCD_ATTR_SSIZE(0) | DMA_TCD_ATTR_DSIZE(0);
+    DMA_TCD0_CSR = DMA_TCD_CSR_INTMAJOR;
 
     for(;;);
     return 0;
